@@ -6,8 +6,11 @@ import EventList from './EventList';
  */
 class EventDispatcher {
 
-    constructor() {
+    constructor(app) {
+        this.app = app;
         this.dispatch = dispatch.apply(dispatch, EventList);
+        this.domElement = this.app.container;
+        this.addDomEventListener();
     }
 
     /**
@@ -27,6 +30,43 @@ class EventDispatcher {
      */
     on(eventName, callback) {
         this.dispatch.on(eventName, callback);
+    }
+
+    /**
+     * 监听dom事件
+     */
+    addDomEventListener() {
+        var container = this.app.container;
+        this.domElement.addEventListener('click', () => {
+
+        });
+        this.domElement.addEventListener('contextmenu', () => {
+
+        });
+        this.domElement.addEventListener('dblclick', () => {
+
+        });
+        this.domElement.addEventListener('keydown', () => {
+
+        });
+        this.domElement.addEventListener('keyup', () => {
+
+        });
+        this.domElement.addEventListener('mousedown', () => {
+
+        });
+        this.domElement.addEventListener('mousemove', () => {
+
+        });
+        this.domElement.addEventListener('mouseup', () => {
+
+        });
+        this.domElement.addEventListener('mousewheel', () => {
+
+        });
+        this.domElement.addEventListener('resize', () => {
+
+        });
     }
 }
 

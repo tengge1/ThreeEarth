@@ -1,5 +1,6 @@
 import BaseService from './BaseService';
 import Globe from '../globe/Globe';
+import OrbitViewer from '../view/OrbitViewer';
 import { Stats } from '../third_party';
 
 /**
@@ -26,8 +27,7 @@ class RenderService extends BaseService {
         this.stats = new Stats();
         this.container.appendChild(this.stats.dom);
 
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-        // this.controls.mouseButtons = { ORBIT: THREE.MOUSE.RIGHT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.LEFT };
+        this.controls = new OrbitViewer(this.camera, this.renderer.domElement);
 
         this.ambientLight = new THREE.AmbientLight(new THREE.Color(0xffffff), 0.4);
         this.scene.add(this.ambientLight);
