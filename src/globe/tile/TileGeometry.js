@@ -22,8 +22,8 @@ class TileGeometry extends THREE.BufferGeometry {
 
         for (var i = 0; i <= this.widthSegments; i++) {
             for (var j = 0; j <= this.heightSegments; j++) {
-                var lon = lonPerTile * x + lonPerTile / this.widthSegments * i;
-                var lat = latPerTile * y + latPerTile / this.heightSegments * j;
+                var lon = lonPerTile * x + lonPerTile / this.widthSegments * i - Math.PI;
+                var lat = Math.PI / 2 - (latPerTile * y + latPerTile / this.heightSegments * j);
                 var xyz = GeoUtils.getXYZ(lon, lat, 0);
 
                 // 顶点

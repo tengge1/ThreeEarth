@@ -28,8 +28,8 @@ class GeoUtilsCls {
      */
     getXYZ(lon, lat, alt = 0) {
         return {
-            x: (1 + alt / Wgs84.a) * Math.cos(lon),
-            y: (1 + alt / Wgs84.a) * Math.sin(lon),
+            x: (1 + alt / Wgs84.a) * Math.cos(lat) * Math.cos(lon),
+            y: (1 + alt / Wgs84.a) * Math.cos(lat) * Math.sin(lon),
             z: (1 + alt / Wgs84.a) * Math.sin(lat)
         };
     }
