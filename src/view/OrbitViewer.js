@@ -1,4 +1,5 @@
 import Viewer from './Viewer';
+import Wgs84 from '../globe/ellipsoid/Wgs84';
 
 /**
  * 可以平移、缩放的查看器
@@ -61,6 +62,9 @@ class OrbitViewer extends Viewer {
         // 计算鼠标位移对于地心的弧度，并将相机转过对应的弧度
         var dx = event.offsetX - this.mouseX;
         var dy = event.offsetY - this.mouseY;
+        var position = this.app.camera.position;
+
+        Wgs84.a
 
     }
 
