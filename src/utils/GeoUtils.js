@@ -42,9 +42,9 @@ class GeoUtilsCls {
      */
     getLonLat(x, y, z) {
         return {
-            lon: Math.acos(x / (1 + alt / Wgs84.a)),
-            lat: Math.asin(y / (1 + alt / Wgs84.a)),
-            alt: (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)) - 1) * Wgs84.a
+            lon: Math.sign(y) * Math.acos(y / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))), // -PI ~ PI
+            lat: Math.atan(z / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))), // -PI / 2 ~ PI / 2
+            alt: (1 - Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))) * Wgs84.a
         };
     }
 
