@@ -37,35 +37,35 @@ class EventDispatcher {
      */
     addDomEventListener() {
         var container = this.app.container;
-        this.domElement.addEventListener('click', () => {
-
+        this.domElement.addEventListener('click', (event) => {
+            this.dispatch.call('click', this, event);
         });
-        this.domElement.addEventListener('contextmenu', () => {
-
+        this.domElement.addEventListener('contextmenu', (event) => {
+            this.dispatch.call('contextmenu', this, event);
         });
-        this.domElement.addEventListener('dblclick', () => {
-
+        this.domElement.addEventListener('dblclick', (event) => {
+            this.dispatch.call('dblclick', this, event);
         });
-        this.domElement.addEventListener('keydown', () => {
-
+        this.domElement.addEventListener('keydown', (event) => {
+            this.dispatch.call('keydown', this, event);
         });
-        this.domElement.addEventListener('keyup', () => {
-
+        this.domElement.addEventListener('keyup', (event) => {
+            this.dispatch.call('keyup', this, event);
         });
-        this.domElement.addEventListener('mousedown', () => {
-
+        this.domElement.addEventListener('mousedown', (event) => {
+            this.dispatch.call('mousedown', this, event);
         });
-        this.domElement.addEventListener('mousemove', () => {
-
+        this.domElement.addEventListener('mousemove', (event) => {
+            this.dispatch.call('mousemove', this, event);
         });
-        this.domElement.addEventListener('mouseup', () => {
-
+        this.domElement.addEventListener('mouseup', (event) => {
+            this.dispatch.call('mouseup', this, event);
         });
-        this.domElement.addEventListener('mousewheel', () => {
-
+        this.domElement.addEventListener('mousewheel', (event) => {
+            this.dispatch.call('mousewheel', this, event);
         });
-        this.domElement.addEventListener('resize', () => {
-
+        this.domElement.addEventListener('resize', (event) => {
+            this.dispatch.call('resize', this, event);
         });
     }
 }
