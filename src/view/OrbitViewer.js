@@ -62,10 +62,13 @@ class OrbitViewer extends Viewer {
         // 计算鼠标位移对于地心的弧度，并将相机转过对应的弧度
         var dx = event.offsetX - this.mouseX;
         var dy = event.offsetY - this.mouseY;
-        var position = this.app.camera.position;
 
-        Wgs84.a
+        var rotation = this.app.globe.rotation;
+        var right = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(-rotation.x, -rotation.y, -rotation.z));
+        var up = new THREE.Vector3(0, 0, 1).applyEuler(new THREE.Euler(-rotation.x, -rotation.y, -rotation.z));
 
+        this.app.camera.rotateOnAxis(up, dx * 0.001);
+        this.app.camera.rotateOnAxis(right, dy * 0.001);
     }
 
     _onMouseUp(event) {
