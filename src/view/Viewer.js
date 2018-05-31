@@ -1,10 +1,14 @@
 /**
- * 地图查看器
+ * 查看器
  */
+
+var ID = -1;
+
 class Viewer {
 
     constructor(app) {
         this.app = app;
+        this.id = 'Viewer' + ID--;
     }
 
     /**

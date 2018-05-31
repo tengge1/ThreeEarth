@@ -42,8 +42,9 @@ class RenderService extends BaseService {
         this.scene.add(this.globe);
         this.app.globe = this.globe;
 
-        this.camera.position.z = 2;
-        this.camera.lookAt(new THREE.Vector3());
+        this.camera.position.x = 5;
+        this.camera.up.copy(new THREE.Vector3(0, 0, 1));
+        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         this.running = false;
     }
