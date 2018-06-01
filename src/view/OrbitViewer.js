@@ -73,6 +73,7 @@ class OrbitViewer extends Viewer {
 
     _onMouseUp(event) {
         this.mouseDown = false;
+        this.onEarth = false;
         this.mouseX = 0;
         this.mouseY = 0;
     }
