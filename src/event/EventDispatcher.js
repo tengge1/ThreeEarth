@@ -42,6 +42,8 @@ class EventDispatcher {
         });
         this.domElement.addEventListener('contextmenu', (event) => {
             this.dispatch.call('contextmenu', this, event);
+            event.preventDefault();
+            return false;
         });
         this.domElement.addEventListener('dblclick', (event) => {
             this.dispatch.call('dblclick', this, event);
@@ -64,7 +66,7 @@ class EventDispatcher {
         this.domElement.addEventListener('mousewheel', (event) => {
             this.dispatch.call('mousewheel', this, event);
         });
-        this.domElement.addEventListener('resize', (event) => {
+        window.addEventListener('resize', (event) => {
             this.dispatch.call('resize', this, event);
         });
     }

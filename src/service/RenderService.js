@@ -54,9 +54,10 @@ class RenderService extends BaseService {
      */
     start() {
         this.controls.start();
-        this.app.on('beforeFrame.RenderService', () => this._beforeFrame());
-        this.app.on('frame.RenderService', () => this._frame());
-        this.app.on('endFrame.RenderService', () => this._endFrame());
+        this.app.on(`beforeFrame.${this.id}`, () => this._beforeFrame());
+        this.app.on(`frame.${this.id}`, () => this._frame());
+        this.app.on(`endFrame.${this.id}`, () => this._endFrame());
+        this.app.on(`resize.${this.id}`, () => this._onResize());
     }
 
     /**
@@ -77,6 +78,12 @@ class RenderService extends BaseService {
 
     _endFrame() {
         this.stats.end();
+    }
+
+    _onResize() {
+        this.app.width = this.container.clientWidth;
+        this.app.height = this.container.clientHeight;
+        this.renderer.setSize(this.app.width, this.app.height);
     }
 
 }

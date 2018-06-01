@@ -1,5 +1,7 @@
 import NotImplementedException from '../exception/NotImplementedException';
 
+var ID = -1;
+
 /**
  * 服务基类
  */
@@ -7,6 +9,7 @@ class BaseService {
 
     constructor(app) {
         this.app = app;
+        this.id = 'Service' + ID--;
     }
 
     /**
