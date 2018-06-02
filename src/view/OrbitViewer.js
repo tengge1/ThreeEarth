@@ -1,16 +1,21 @@
 import Viewer from './Viewer';
 import Wgs84 from '../globe/ellipsoid/Wgs84';
+import GeoUtils from '../utils/GeoUtils';
 
 /**
- * 可以平移、缩放的查看器
+ * 轨道查看器
  */
 class OrbitViewer extends Viewer {
+
     constructor(app) {
         super(app);
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector3();
+        this.minDistance = 1.0; // 离地心最近距离
+        this.maxDistance = 5.0; // 离地心最远距离
     }
 
+    /**
+     * 开始查看
+     */
     start() {
         this.app.on(`mousedown.${this.id}`, (event) => {
             this._onMouseDown(event);
@@ -26,6 +31,9 @@ class OrbitViewer extends Viewer {
         });
     }
 
+    /**
+     * 停止查看
+     */
     stop() {
         this.app.on(`mousedown.${this.id}`, null);
         this.app.on(`mousemove.${this.id}`, null);
@@ -33,56 +41,83 @@ class OrbitViewer extends Viewer {
         this.app.on(`mousewheel.${this.id}`, null);
     }
 
+    /**
+     * 按下鼠标
+     * @param {*} event 鼠标事件
+     */
     _onMouseDown(event) {
-        this.mouseDown = true;
-        this.mouseX = event.offsetX;
-        this.mouseY = event.offsetY;
+        if (event.button !== THREE.MOUSE.LEFT) {
+            return;
+        }
+        this._mouseDown = true;
+        this._mouseLon = this.app.mouse._lon;
+        this._mouseLat = this.app.mouse._lat;
+        this._camPos = this.app.camera.position.clone();
     }
 
+    /**
+     * 鼠标移动
+     * @param {*} event 
+     */
     _onMouseMove(event) {
-        if (!this.mouseDown) {
+        if (!this._mouseDown) {
             return;
         }
 
-        // 判断鼠标是否经过地球，一旦经过，则不再判断。
-        if (!this.onEarth) {
-            this.mouse.x = event.offsetX / this.app.width * 2 - 1;
-            this.mouse.y = - event.offsetY / this.app.height * 2 + 1;
-            this.raycaster.setFromCamera(this.mouse, this.app.camera);
-
-            var intersect = this.raycaster.intersectObjects([this.app.globe])[0];
-            if (intersect == null) {
-                this.mouseX = event.offsetX;
-                this.mouseY = event.offsetY;
-                return;
-            }
-            this.onEarth = true;
+        // 鼠标不在地球上
+        if (!this.app.mouse.onEarth) {
+            this._mouseLon = this.app.mouse._lon;
+            this._mouseLat = this.app.mouse._lat;
+            this._camPos = this.app.camera.position.clone();
+            return;
         }
 
-        // 计算鼠标位移对于地心的弧度，并将相机转过对应的弧度
-        var dx = event.offsetX - this.mouseX;
-        var dy = event.offsetY - this.mouseY;
+        // 鼠标在地球上，计算鼠标位移对于地心的弧度，并将相机转过相应的弧度
+        if (this._mouseLon === 0.0 && this._mouseLat === 0.0) {
+            this._mouseLon = this.app.mouse._lon;
+            this._mouseLat = this.app.mouse._lat;
+        }
 
-        var rotation = this.app.globe.rotation;
-        var right = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(-rotation.x, -rotation.y, -rotation.z));
-        var up = new THREE.Vector3(0, 0, 1).applyEuler(new THREE.Euler(-rotation.x, -rotation.y, -rotation.z));
+        const dlon = this.app.mouse._lon - this._mouseLon;
+        const dlat = this.app.mouse._lat - this._mouseLat;
 
-        this.app.camera.rotateOnAxis(up, dx * 0.001);
-        this.app.camera.rotateOnAxis(right, dy * 0.001);
+        const position = this._camPos;
+        const distance = position.distanceTo(new THREE.Vector3());
+        const lonlat = GeoUtils._getLonLat(position.x, position.y, position.z);
+
+        const xyz = GeoUtils._getXYZ(lonlat.lon + dlon, lonlat.lat, distance);
+        this.app.camera.position.copy(xyz);
+        this.app.camera.lookAt(new THREE.Vector3());
     }
 
+    /**
+     * 抬起鼠标
+     * @param {*} event 
+     */
     _onMouseUp(event) {
-        this.mouseDown = false;
-        this.onEarth = false;
-        this.mouseX = 0;
-        this.mouseY = 0;
+        this._mouseDown = false;
+        this._mouseLon = 0.0;
+        this._mouseLat = 0.0;
+        this._camPos = null;
     }
 
+    /**
+     * 鼠标滚轮移动
+     * @param {*} event 鼠标事件
+     */
     _onMouseWheel(event) {
-        // 最大距离5，最小距离1
+        // event.deltaY：向前滚动鼠标为负数，向后滚动鼠标为正数。
+        // 放大：向前滚动滚轮。
+        // 缩小：向后滚动滚轮。
         var position = this.app.camera.position;
         var distance = position.distanceTo(new THREE.Vector3());
-        this.app.camera.position.sub(new THREE.Vector3().copy(position).multiplyScalar(event.deltaY * -0.001));
+
+        if (distance <= this.minDistance && event.deltaY < 0 ||
+            distance >= this.maxDistance && event.deltaY > 0) {
+            return;
+        }
+
+        this.app.camera.position.addVectors(position, position.clone().multiplyScalar(event.deltaY * 0.001));
     }
 }
 

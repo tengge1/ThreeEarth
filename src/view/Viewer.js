@@ -1,14 +1,13 @@
 /**
  * 查看器
  */
-
 var ID = -1;
 
 class Viewer {
 
     constructor(app) {
         this.app = app;
-        this.id = 'Viewer' + ID--;
+        this.id = `Viewer${ID--}`;
     }
 
     /**

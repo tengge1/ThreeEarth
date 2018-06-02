@@ -1,7 +1,7 @@
 import BaseService from './BaseService';
 import Globe from '../globe/Globe';
 import OrbitViewer from '../view/OrbitViewer';
-import { Stats, OrbitControls } from '../third_party';
+import { Stats } from '../third_party';
 
 /**
  * 渲染服务
@@ -28,7 +28,7 @@ class RenderService extends BaseService {
         this.renderer.setSize(this.app.width, this.app.height);
         this.container.appendChild(this.renderer.domElement);
 
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.viewer = new OrbitViewer(this.app);
 
         this.stats = new Stats();
         this.container.appendChild(this.stats.dom);
@@ -38,7 +38,7 @@ class RenderService extends BaseService {
         this.directionalLight = new THREE.DirectionalLight(new THREE.Color(0xffffff), 0.8);
         this.scene.add(this.directionalLight);
 
-        this.globe = new Globe(this);
+        this.globe = new Globe(this.app);
         this.scene.add(this.globe);
         this.app.globe = this.globe;
 
@@ -53,7 +53,8 @@ class RenderService extends BaseService {
      * 启动渲染服务
      */
     start() {
-        // this.controls.start();
+        this.globe.render();
+        this.viewer.start();
         this.app.on(`beforeFrame.${this.id}`, () => this._beforeFrame());
         this.app.on(`frame.${this.id}`, () => this._frame());
         this.app.on(`endFrame.${this.id}`, () => this._endFrame());
@@ -64,22 +65,38 @@ class RenderService extends BaseService {
      * 停止渲染服务
      */
     stop() {
-        this.controls.stop();
-        this.app.on('frame.RenderService', null);
+        this.globe.clear();
+        this.viewer.stop();
+        this.app.on(`beforeFrame.${this.id}`, null);
+        this.app.on(`frame.${this.id}`, null);
+        this.app.on(`endFrame.${this.id}`, null);
+        this.app.on(`resize.${this.id}`, null);
     }
 
+    /**
+     * 渲染之前
+     */
     _beforeFrame() {
         this.stats.begin();
     }
 
+    /**
+     * 渲染过程
+     */
     _frame() {
         this.renderer.render(this.scene, this.camera);
     }
 
+    /**
+     * 渲染之后
+     */
     _endFrame() {
         this.stats.end();
     }
 
+    /**
+     * 渲染区域自适应
+     */
     _onResize() {
         this.app.width = this.container.clientWidth;
         this.app.height = this.container.clientHeight;

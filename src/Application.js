@@ -1,4 +1,4 @@
-import { OrbitControls } from './third_party';
+import Options from './Options';
 import EventDispatcher from './event/EventDispatcher';
 import BaseService from './service/BaseService';
 import RenderService from './service/RenderService';
@@ -8,13 +8,15 @@ import RenderService from './service/RenderService';
  */
 class Application {
 
-    constructor(container) {
+    constructor(container, options) {
         this.container = container;
         if (this.container == null) {
             throw 'Application: container未定义。';
         }
         this.width = this.container.clientWidth;
         this.height = this.container.clientHeight;
+
+        this.options = new Options(options);
 
         this.dispatch = new EventDispatcher(this);
         this.call = this.dispatch.call.bind(this.dispatch);

@@ -58,13 +58,13 @@ class GeoUtilsCls {
      * @param {*} x 直角坐标x
      * @param {*} y 直角坐标y
      * @param {*} z 直角坐标z
-     * @returns { lon: 经度（弧度）, lat: 纬度（弧度）, alt: 海拔（米）/ 地球半径 }
+     * @returns lon: 经度（弧度）, lat: 纬度（弧度）, alt: 海拔（米）/ 地球半径
      */
     _getLonLat(x, y, z) {
         return {
             lon: Math.sign(y) * Math.acos(y / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))), // -PI ~ PI
             lat: Math.atan(z / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))), // -PI / 2 ~ PI / 2
-            alt: 1 - Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))
+            alt: Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)) - 1
         };
     }
 
@@ -73,7 +73,7 @@ class GeoUtilsCls {
      * @param {*} x 直角坐标x
      * @param {*} y 直角坐标y
      * @param {*} z 直角坐标z
-     * @returns { lon: 经度, lat: 纬度, alt: 海拔（米 }
+     * @returns lon: 经度, lat: 纬度, alt: 海拔（米）
      */
     getLonLat(x, y, z) {
         const result = this._getLonLat(x, y, z);
@@ -88,7 +88,7 @@ class GeoUtilsCls {
      * 墨卡托投影
      * @param {*} lon 经度（弧度）
      * @param {*} lat 维度（弧度）
-     * @returns { lon: 墨卡托x, lat: 墨卡托y }
+     * @returns lon: 墨卡托x, lat: 墨卡托y
      * @see https://github.com/d3/d3-geo/blob/master/src/projection/mercator.js
      */
     _mercator(lon, lat) {
@@ -102,7 +102,7 @@ class GeoUtilsCls {
      * 墨卡托投影
      * @param {*} lon 经度
      * @param {*} lat 维度
-     * @returns { lon: 墨卡托坐标x, lat: 墨卡托坐标y }
+     * @returns lon: 墨卡托坐标x, lat: 墨卡托坐标y
      */
     mercator(lon, lat) {
         return this._mercator(lon, this.radian(lat));
@@ -112,7 +112,7 @@ class GeoUtilsCls {
      * 墨卡托投影反算
      * @param {*} x 墨卡托坐标x
      * @param {*} y 墨卡托坐标y
-     * @returns { lon: 经度（弧度）, lat: 纬度（弧度） }
+     * @returns lon: 经度（弧度）, lat: 纬度（弧度）
      * @see https://github.com/d3/d3-geo/blob/master/src/projection/mercator.js
      */
     _mercatorInvert = function (x, y) {
@@ -126,7 +126,7 @@ class GeoUtilsCls {
      * 墨卡托投影反算
      * @param {*} x 墨卡托坐标x
      * @param {*} y 墨卡托坐标y
-     * @returns { lon: 经度, lat: 纬度 }
+     * @returns lon: 经度, lat: 纬度
      */
     mercatorInvert(x, y) {
         const result = this._mercatorInvert(x, y);
