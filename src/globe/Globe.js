@@ -77,6 +77,7 @@ class Globe extends THREE.Object3D {
 
         // 鼠标射线与地面发生碰撞
         var obj = intersects[0];
+
         this.mouse.cartesianX = obj.point.x;
         this.mouse.cartesianY = obj.point.y;
         this.mouse.cartesianZ = obj.point.z;

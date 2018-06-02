@@ -50,9 +50,8 @@ class OrbitViewer extends Viewer {
             return;
         }
         this._mouseDown = true;
-        this._mouseLon = this.app.mouse._lon;
-        this._mouseLat = this.app.mouse._lat;
-        this._camPos = this.app.camera.position.clone();
+        this._mouseX = event.offsetX;
+        this._mouseY = event.offsetY;
     }
 
     /**
@@ -66,28 +65,49 @@ class OrbitViewer extends Viewer {
 
         // 鼠标不在地球上
         if (!this.app.mouse.onEarth) {
-            this._mouseLon = this.app.mouse._lon;
-            this._mouseLat = this.app.mouse._lat;
-            this._camPos = this.app.camera.position.clone();
+            this._mouseX = event.offsetX;
+            this._mouseY = event.offsetY;
             return;
         }
 
-        // 鼠标在地球上，计算鼠标位移对于地心的弧度，并将相机转过相应的弧度
-        if (this._mouseLon === 0.0 && this._mouseLat === 0.0) {
-            this._mouseLon = this.app.mouse._lon;
-            this._mouseLat = this.app.mouse._lat;
+        if (this._mouseX === 0 && this._mouseY === 0) {
+            this._mouseX = event.offsetX;
+            this._mouseY = event.offsetY;
+            return;
         }
 
-        const dlon = this.app.mouse._lon - this._mouseLon;
-        const dlat = this.app.mouse._lat - this._mouseLat;
+        // 计算相机转过的弧度
+        var vec3_old = new THREE.Vector3(this._mouseX / this.app.width * 2 - 1, -this._mouseY / this.app.height * 2 + 1, -1).unproject(this.app.camera);
+        var vec3_new = new THREE.Vector3(event.offsetX / this.app.width * 2 - 1, -event.offsetY / this.app.height * 2 + 1, -1).unproject(this.app.camera);
 
-        const position = this._camPos;
-        const distance = position.distanceTo(new THREE.Vector3());
-        const lonlat = GeoUtils._getLonLat(position.x, position.y, position.z);
+        var lonlat_old = GeoUtils._getLonLat(vec3_old.x, vec3_old.y, vec3_old.z);
+        var lonlat_new = GeoUtils._getLonLat(vec3_new.x, vec3_new.y, vec3_new.z);
 
-        const xyz = GeoUtils._getXYZ(lonlat.lon + dlon, lonlat.lat, distance);
-        this.app.camera.position.copy(xyz);
-        this.app.camera.lookAt(new THREE.Vector3());
+        var position = this.app.camera.position;
+        var distance = position.distanceTo(new THREE.Vector3()) - 1;
+        var lonlat = GeoUtils._getLonLat(position.x, position.y, position.z);
+
+        var dlon = lonlat_old.lon - lonlat_new.lon;
+        var dlat = lonlat_old.lat - lonlat_new.lat;
+
+        // lonlat.lon += dlon;
+        // lonlat.lat += dlat;
+
+        if (dlon < -3) {
+            dlon = Math.PI * 2 + dlon;
+        }
+
+        if (dlon > 3) {
+            dlon = dlon - Math.PI * 2;
+        }
+
+        const xyz = GeoUtils._getXYZ(lonlat.lon, lonlat.lat, distance);
+        // this.app.camera.position.copy(xyz);
+        // this.app.camera.lookAt(new THREE.Vector3());
+        this.app.globe.rotation.z += dlon;
+
+        this._mouseX = event.offsetX;
+        this._mouseY = event.offsetY;
     }
 
     /**
@@ -96,9 +116,8 @@ class OrbitViewer extends Viewer {
      */
     _onMouseUp(event) {
         this._mouseDown = false;
-        this._mouseLon = 0.0;
-        this._mouseLat = 0.0;
-        this._camPos = null;
+        this._mouseX = 0;
+        this._mouseY = 0;
     }
 
     /**
