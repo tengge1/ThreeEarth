@@ -4,6 +4,11 @@ import Wgs84 from '../globe/ellipsoid/Wgs84';
  * 地理计算工具类
  */
 class GeoUtilsCls {
+
+    constructor() {
+        this.MAX_PROJECTED_COORD = 20037508.3427892; // 墨卡托最大投影坐标（地球周长一半）
+    }
+
     /**
      * 角度转弧度
      * @param {*} deg 角度
@@ -128,6 +133,63 @@ class GeoUtilsCls {
         return {
             lon: result.lon,
             lat: this.degree(result.lat)
+        };
+    }
+
+    /**
+     * 获取切片的墨卡托投影坐标范围
+     * @param {*} x 切片坐标x
+     * @param {*} y 切片坐标y
+     * @param {*} z 层级level
+     * @returns 切片的墨卡托投影坐标范围
+     */
+    getMercatorAabbByGrid(x, y, z) {
+        const size = 2 * this.MAX_PROJECTED_COORD / Math.pow(2, z);
+        const minX = -this.MAX_PROJECTED_COORD + x * size;
+        const maxX = minX + size;
+        const maxY = this.MAX_PROJECTED_COORD - y * size;
+        const minY = maxY - size;
+        return {
+            minX: minX,
+            minY: minY,
+            maxX: maxX,
+            maxY: maxY
+        };
+    };
+
+    /**
+     * 获取切片的经纬度坐标范围（弧度）
+     * @param {*} x 切片坐标x
+     * @param {*} y 切片坐标y
+     * @param {*} z 层级level
+     * @returns 经纬度坐标范围（弧度）
+     */
+    _getAabbByGrid(x, y, z) {
+        const aabb = this.getMercatorAabbByGrid(x, y, z);
+        const min = this._mercatorInvert(aabb.minX / Wgs84.a, aabb.minY / Wgs84.a);
+        const max = this._mercatorInvert(aabb.maxX / Wgs84.a, aabb.maxY / Wgs84.a);
+        return {
+            minLon: min.lon,
+            minLat: min.lat,
+            maxLon: max.lon,
+            maxLat: max.lat
+        };
+    };
+
+    /**
+     * 获取切片的经纬度坐标范围
+     * @param {*} x 切片坐标x
+     * @param {*} y 切片坐标y
+     * @param {*} z 切片坐标z
+     * @returns 经纬度坐标范围
+     */
+    getAabbByGrid(x, y, z) {
+        const result = this._getAabbByGrid(x, y, z);
+        return {
+            minLon: this.degree(result.minLon),
+            minLat: this.degree(result.minLat),
+            maxLon: this.degree(result.maxLon),
+            maxLat: this.degree(result.maxLat)
         };
     }
 }

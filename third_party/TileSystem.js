@@ -10,7 +10,7 @@ const MaxLatitude = 85.05112878;
 const MinLongitude = -180;
 const MaxLongitude = 180;
 
-class TileSystem {
+class TileSystemCls {
     /// <summary>
     /// Clips a number to the specified minimum and maximum values.
     /// </summary>
@@ -187,4 +187,4 @@ class TileSystem {
     }
 }
 
-export default TileSystem;
+export default new TileSystemCls();

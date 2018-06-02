@@ -1,7 +1,7 @@
 import BaseService from './BaseService';
 import Globe from '../globe/Globe';
 import OrbitViewer from '../view/OrbitViewer';
-import { Stats } from '../third_party';
+import { Stats, OrbitControls } from '../third_party';
 
 /**
  * 渲染服务
@@ -28,7 +28,7 @@ class RenderService extends BaseService {
         this.renderer.setSize(this.app.width, this.app.height);
         this.container.appendChild(this.renderer.domElement);
 
-        this.controls = new OrbitViewer(this.app);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.stats = new Stats();
         this.container.appendChild(this.stats.dom);
@@ -53,7 +53,7 @@ class RenderService extends BaseService {
      * 启动渲染服务
      */
     start() {
-        this.controls.start();
+        // this.controls.start();
         this.app.on(`beforeFrame.${this.id}`, () => this._beforeFrame());
         this.app.on(`frame.${this.id}`, () => this._frame());
         this.app.on(`endFrame.${this.id}`, () => this._endFrame());

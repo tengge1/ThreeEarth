@@ -7,23 +7,22 @@ class TileGeometry extends THREE.BufferGeometry {
     constructor(x, y, z) {
         super();
 
-        var options = options || {};
-        this.width = 2 * Math.PI * 1 / Math.pow(2, z);
-        this.height = 2 * Math.PI * 1 / Math.pow(2, z);
-        this.widthSegments = 16;
-        this.heightSegments = 16;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.aabb = GeoUtils._getAabbByGrid(x, y, z);
+
+        this.rowSegments = 16;
+        this.colSegments = 16;
 
         var vertices = [];
         var indexes = [];
         var uvs = [];
 
-        var lonPerTile = 2 * Math.PI / Math.pow(2, z);
-        var latPerTile = Math.PI / Math.pow(2, z);
-
-        for (var i = 0; i <= this.widthSegments; i++) {
-            for (var j = 0; j <= this.heightSegments; j++) {
-                var lon = lonPerTile * x + lonPerTile / this.widthSegments * i - Math.PI;
-                var lat = Math.PI / 2 - (latPerTile * y + latPerTile / this.heightSegments * j);
+        for (var i = 0; i <= this.rowSegments; i++) {
+            for (var j = 0; j <= this.colSegments; j++) {
+                var lon = this.aabb.minLon + (this.aabb.maxLon - this.aabb.minLon) / this.rowSegments * j;
+                var lat = this.aabb.minLat + (this.aabb.maxLat - this.aabb.minLat) / this.colSegments * i;
                 var xyz = GeoUtils._getXYZ(lon, lat, 0);
 
                 // 顶点
@@ -33,27 +32,27 @@ class TileGeometry extends THREE.BufferGeometry {
                     xyz.z
                 );
 
-                // uv坐标
-                uvs.push(
-                    i / this.widthSegments,
-                    j / this.heightSegments
-                );
-
                 // 索引
                 if (i > 0 && j > 0) {
-                    indexes.push((this.widthSegments + 1) * j + i);
-                    indexes.push((this.widthSegments + 1) * j + i - 1);
-                    indexes.push((this.widthSegments + 1) * (j - 1) + i - 1);
-                    indexes.push((this.widthSegments + 1) * j + i);
-                    indexes.push((this.widthSegments + 1) * (j - 1) + i - 1);
-                    indexes.push((this.widthSegments + 1) * (j - 1) + i);
+                    indexes.push((this.rowSegments + 1) * i + j);
+                    indexes.push((this.rowSegments + 1) * i + j - 1);
+                    indexes.push((this.rowSegments + 1) * (i - 1) + j - 1);
+                    indexes.push((this.rowSegments + 1) * i + j);
+                    indexes.push((this.rowSegments + 1) * (i - 1) + j - 1);
+                    indexes.push((this.rowSegments + 1) * (i - 1) + j);
                 }
+
+                // uv坐标
+                uvs.push(
+                    j / this.colSegments,
+                    i / this.rowSegments
+                );
             }
         }
 
         this.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        this.addAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
         this.setIndex(indexes);
+        this.addAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
         this.computeVertexNormals();
     }
 }
