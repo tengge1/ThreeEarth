@@ -1,6 +1,7 @@
 import BaseService from './BaseService';
 import Globe from '../globe/Globe';
 import Sun from '../render/Sun';
+import { OutlineEffect } from '../third_party';
 import OrbitViewer from '../view/OrbitViewer';
 import { Stats } from '../third_party';
 
@@ -41,11 +42,18 @@ class RenderService extends BaseService {
         this.sun.app = this.app;
         this.scene.add(this.sun);
         this.sun.init();
-        this.sun.position.set(8, 0, 0);
+        this.sun.position.set(20, 0, 0);
 
         this.globe = new Globe(this.app);
         this.scene.add(this.globe);
         this.app.globe = this.globe;
+
+        this.outline = new OutlineEffect(this.renderer, {
+            defaultThickNess: 0.01,
+            defaultColor: new THREE.Color(0x888888),
+            defaultAlpha: 0.8,
+            defaultKeepAlive: true
+        });
 
         this.camera.position.x = 5;
         this.camera.up.copy(new THREE.Vector3(0, 0, 1));
@@ -91,6 +99,7 @@ class RenderService extends BaseService {
     _frame() {
         this.app.call('beforeRender', this);
         this.renderer.render(this.scene, this.camera);
+        this.outline.render(this.scene, this.camera);
         this.app.call('render', this);
     }
 
