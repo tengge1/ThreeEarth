@@ -9,7 +9,7 @@ class OrbitViewer extends Viewer {
 
     constructor(app) {
         super(app);
-        this.minDistance = 1.0; // 离地心最近距离
+        this.minDistance = 1.1; // 离地心最近距离
         this.maxDistance = 5.0; // 离地心最远距离
     }
 
@@ -108,6 +108,8 @@ class OrbitViewer extends Viewer {
         this.oldX = this.app.mouse.cartesianX;
         this.oldY = this.app.mouse.cartesianY;
         this.oldZ = this.app.mouse.cartesianZ;
+
+        this.app.call('viewChange', this);
     }
 
     /**
@@ -139,7 +141,12 @@ class OrbitViewer extends Viewer {
             return;
         }
 
-        this.app.camera.position.addVectors(position, position.clone().multiplyScalar(event.deltaY * 0.001));
+        // y = ax + b，距离1，速度为0，距离5，速度为1
+        var dd = (event.deltaY * 0.001) * (0.25 * distance - 0.25);
+
+        this.app.camera.position.addVectors(position, position.clone().multiplyScalar(dd));
+
+        this.app.call('viewChange', this);
     }
 }
 

@@ -1,5 +1,6 @@
 import TileMesh from './tile/TileMesh';
 import Mouse from '../core/Mouse';
+import Direction from '../core/Direction';
 import GeoUtils from '../utils/GeoUtils';
 
 var ID = -1;
@@ -13,13 +14,22 @@ class Globe extends THREE.Object3D {
         super();
         this.app = app;
         this._id = `Globe${ID--}`;
+
+        // 记录鼠标当前位置各种信息
         this.mouse = new Mouse();
-        this.raycast = new THREE.Raycaster();
         this.app.mouse = this.mouse;
+
+        // 记录当前各种方向信息
+        this.direction = new Direction();
+        this.app.direction = this.direction;
+
+        this.raycast = new THREE.Raycaster();
+
+        this.helper = new THREE.ArrowHelper(this.direction.right, app.direction.origin, 2, 0xff0000);
     }
 
     /**
-     * 开始渲染地球
+     * 开始渲染地球（只调用了一次）
      */
     render() {
         for (var i = 0; i < 2; i++) {
@@ -27,15 +37,39 @@ class Globe extends THREE.Object3D {
                 this.add(new TileMesh(j, i, 1));
             }
         }
+        this.app.scene.add(this.helper);
+        this.app.on(`viewChange.${this._id}`, () => this._onViewChange());
         this.app.on(`mousemove.${this._id}`, (event) => this._onMouseMove(event));
     }
 
     /**
-     * 清除地球渲染
+     * 清除地球渲染（只调用了一次）
      */
     clear() {
         this.children.length = [];
+        this.app.on(`viewChange.${this._id}`, null);
         this.app.on(`mousemove.${this._id}`, null);
+    }
+
+    /**
+     * 视野发生变化
+     */
+    _onViewChange() {
+        // 计算相机初始位置和当前位置所在的轴，和旋转角度
+        var axis = new THREE.Vector3().crossVectors(new THREE.Vector3(1), this.app.camera.position);
+        var angle = new THREE.Vector3(1).angleTo(this.app.camera.position);
+
+        var quat = new THREE.Quaternion();
+        quat.setFromRotationMatrix(app.camera.matrixWorld);
+
+        this.direction.left.copy(new THREE.Vector3(0, -1, 0).unproject(this.app.camera).normalize());
+        this.direction.right.copy(new THREE.Vector3(1, 0, 0).unproject(this.app.camera).normalize());
+        this.direction.up.copy(this.app.camera.up).applyQuaternion(quat).normalize();
+        this.direction.down.copy(new THREE.Vector3(0, 0, -1).unproject(this.app.camera).normalize());
+        this.direction.forward.copy(this.app.camera.position).multiplyScalar(-1).normalize();
+        this.direction.backward.copy(this.direction.forward).multiplyScalar(-1);
+
+        this.helper.setDirection(this.direction.backward);
     }
 
     /**

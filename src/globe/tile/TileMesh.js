@@ -10,6 +10,8 @@ class TileMesh extends THREE.Mesh {
         var material = new TileMaterial(x, y, z);
         super(geometry, material);
 
+        this.frustumCulled = false;
+
         // 每个tile度数 * 第x个tile + 半个tile度数
         const posX = -Math.cos(2 * Math.PI / Math.pow(2, z) * (x + 0.5));
         const posY = Math.sign(x - Math.pow(2, z) / 2 + 0.5) * Math.sin(Math.PI / Math.pow(2, z) * (y + 0.5));

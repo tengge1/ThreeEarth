@@ -3,6 +3,11 @@
  */
 class Options {
 
+    constructor(options) {
+        options = options || {};
+        this.assetsPath = options.assetsPath || 'assets';
+    }
+
 }
 
 export default Options;

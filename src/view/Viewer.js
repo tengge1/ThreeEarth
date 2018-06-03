@@ -1,3 +1,5 @@
+import NotImplementedException from '../exception/NotImplementedException';
+
 /**
  * 查看器
  */
@@ -14,14 +16,14 @@ class Viewer {
      * 启动查看
      */
     start() {
-
+        throw NotImplementedException();
     }
 
     /**
      * 停止查看
      */
     stop() {
-
+        throw NotImplementedException();
     }
 }
 

@@ -100,7 +100,22 @@ var EventList = [
     /**
      * 窗口尺寸变化事件
      */
-    'resize'
+    'resize',
+
+    /**
+     * 渲染服务渲染前调用
+     */
+    'beforeRender',
+
+    /**
+     * 渲染服务渲染完成调用
+     */
+    'render',
+
+    /**
+     * 视野发生变化后调用
+     */
+    'viewChange'
 ];
 
 export default EventList;

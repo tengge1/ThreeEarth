@@ -21,8 +21,9 @@ class TileGeometry extends THREE.BufferGeometry {
 
         for (var i = 0; i <= this.rowSegments; i++) {
             for (var j = 0; j <= this.colSegments; j++) {
-                var lon = this.aabb.minLon + (this.aabb.maxLon - this.aabb.minLon) / this.rowSegments * j;
-                var lat = this.aabb.minLat + (this.aabb.maxLat - this.aabb.minLat) / this.colSegments * i;
+                var lon = this.aabb.minLon + (this.aabb.maxLon - this.aabb.minLon) / this.colSegments * j;
+                var lat = this.aabb.minLat + (this.aabb.maxLat - this.aabb.minLat) / this.rowSegments * i;
+                var lonlat = GeoUtils._mercatorInvert(lon, lat);
                 var xyz = GeoUtils._getXYZ(lon, lat, 0);
 
                 // 顶点
@@ -45,7 +46,7 @@ class TileGeometry extends THREE.BufferGeometry {
                 // uv坐标
                 uvs.push(
                     j / this.colSegments,
-                    i / this.rowSegments
+                    (lonlat.lat - this.aabb.minLat) / (this.aabb.maxLat - this.aabb.minLat)
                 );
             }
         }
