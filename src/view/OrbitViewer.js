@@ -52,6 +52,10 @@ class OrbitViewer extends Viewer {
         this._mouseDown = true;
         this._mouseX = event.offsetX;
         this._mouseY = event.offsetY;
+
+        this.oldX = 0;
+        this.oldY = 0;
+        this.oldZ = 0;
     }
 
     /**
@@ -76,38 +80,34 @@ class OrbitViewer extends Viewer {
             return;
         }
 
-        // 计算相机转过的弧度
-        var vec3_old = new THREE.Vector3(this._mouseX / this.app.width * 2 - 1, -this._mouseY / this.app.height * 2 + 1, -1).unproject(this.app.camera);
-        var vec3_new = new THREE.Vector3(event.offsetX / this.app.width * 2 - 1, -event.offsetY / this.app.height * 2 + 1, -1).unproject(this.app.camera);
+        if (this.oldX === 0 && this.oldY === 0 && this.oldZ === 0) {
+            this.oldX = this.app.mouse.cartesianX;
+            this.oldY = this.app.mouse.cartesianY;
+            this.oldZ = this.app.mouse.cartesianZ;
+            return;
+        }
 
-        var lonlat_old = GeoUtils._getLonLat(vec3_old.x, vec3_old.y, vec3_old.z);
-        var lonlat_new = GeoUtils._getLonLat(vec3_new.x, vec3_new.y, vec3_new.z);
+        // 计算相机转过的弧度
+        var vec3_old = new THREE.Vector3(this.oldX, this.oldY, this.oldZ);
+        var vec3_new = new THREE.Vector3(this.app.mouse.cartesianX, this.app.mouse.cartesianY, this.app.mouse.cartesianZ);
+
+        var axis = new THREE.Vector3().crossVectors(vec3_new, vec3_old);
+        axis.normalize();
+        var angle = vec3_new.angleTo(vec3_old);
 
         var position = this.app.camera.position;
         var distance = position.distanceTo(new THREE.Vector3()) - 1;
-        var lonlat = GeoUtils._getLonLat(position.x, position.y, position.z);
 
-        var dlon = lonlat_old.lon - lonlat_new.lon;
-        var dlat = lonlat_old.lat - lonlat_new.lat;
-
-        // lonlat.lon += dlon;
-        // lonlat.lat += dlat;
-
-        if (dlon < -3) {
-            dlon = Math.PI * 2 + dlon;
-        }
-
-        if (dlon > 3) {
-            dlon = dlon - Math.PI * 2;
-        }
-
-        const xyz = GeoUtils._getXYZ(lonlat.lon, lonlat.lat, distance);
-        // this.app.camera.position.copy(xyz);
-        // this.app.camera.lookAt(new THREE.Vector3());
-        this.app.globe.rotation.z += dlon;
+        position.applyAxisAngle(axis, angle);
+        this.app.camera.matrixWorld.setPosition(position);
+        this.app.camera.lookAt(new THREE.Vector3());
 
         this._mouseX = event.offsetX;
         this._mouseY = event.offsetY;
+
+        this.oldX = this.app.mouse.cartesianX;
+        this.oldY = this.app.mouse.cartesianY;
+        this.oldZ = this.app.mouse.cartesianZ;
     }
 
     /**
@@ -118,6 +118,9 @@ class OrbitViewer extends Viewer {
         this._mouseDown = false;
         this._mouseX = 0;
         this._mouseY = 0;
+        this.oldX = 0;
+        this.oldY = 0;
+        this.oldZ = 0;
     }
 
     /**
