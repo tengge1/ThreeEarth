@@ -192,6 +192,51 @@ class GeoUtilsCls {
             maxLat: this.degree(result.maxLat)
         };
     }
+
+    /**
+     * 计算两个点表示的直线与圆的交点
+     * @param {*} x1 点一坐标x
+     * @param {*} y1 点一坐标y
+     * @param {*} z1 点一坐标z
+     * @param {*} x2 点二坐标x
+     * @param {*} y2 点二坐标y
+     * @param {*} z2 点二坐标z
+     * @returns 两个交点
+     */
+    lineIntersectGlobe(x1, y1, z1, x2, y2, z2) {
+        var a = Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2);
+        var b = 2 * (Math.pow(x1, 2) - x1 * x2 + Math.pow(y1, 2) - y1 * y2 + Math.pow(z1, 2) - z1 * z2);
+        var c = Math.pow(x1, 2) + Math.pow(y1, 2) + Math.pow(z1, 2) - 1;
+        var delta = Math.pow(b, 2) - 4 * a * c;
+
+        var k1, k2;
+        if (delta > 0) { // 两个交点
+            k1 = (-b + Math.sqrt(delta)) / (2 * a);
+            k2 = (-b - Math.sqrt(delta)) / (2 * a);
+        } else if (delta === 0) { // 相切
+            k1 = k2 = -b / (2 * a);
+        } else { // 不相交
+            return null;
+        }
+
+        if (k1 === k2) { // 一个点
+            return [{
+                x: x1 + k1 * (x1 - x2),
+                y: y1 + k1 * (y1 - y2),
+                z: z1 + k1 * (z1 - z2)
+            }]
+        } else { // 两个点
+            return [{
+                x: x1 + k1 * (x1 - x2),
+                y: y1 + k1 * (y1 - y2),
+                z: z1 + k1 * (z1 - z2)
+            }, {
+                x: x1 + k2 * (x1 - x2),
+                y: y1 + k2 * (y1 - y2),
+                z: z1 + k2 * (z1 - z2)
+            }]
+        }
+    }
 }
 
 const GeoUtils = new GeoUtilsCls()

@@ -53,9 +53,26 @@ class OrbitViewer extends Viewer {
         this._mouseX = event.offsetX;
         this._mouseY = event.offsetY;
 
-        this.oldX = 0;
-        this.oldY = 0;
-        this.oldZ = 0;
+        this._oldX = 0;
+        this._oldY = 0;
+        this._oldZ = 0;
+    }
+
+    _intersectPoint(x, y) {
+        x = x / this.app.width * 2 - 1;
+        y = -y / this.app.height * 2 + 1;
+        var point1 = new THREE.Vector3(x, y, 1);
+        var point2 = new THREE.Vector3(x, y, -1);
+        point1 = point1.unproject(this.app.camera);
+        point2 = point2.unproject(this.app.camera);
+        var intersects = GeoUtils.lineIntersectGlobe(point1.x, point1.y, point1.z, point2.x, point2.y, point2.z);
+        if (intersects == null) {
+            return null;
+        }
+        if(intersects.length > 1) {
+            return intersects[1];
+        }
+        return intersects[0];
     }
 
     /**
@@ -68,9 +85,8 @@ class OrbitViewer extends Viewer {
         }
 
         // 鼠标不在地球上
-        if (!this.app.mouse.onEarth) {
-            this._mouseX = event.offsetX;
-            this._mouseY = event.offsetY;
+        var point = this._intersectPoint(event.offsetX, event.offsetY);
+        if (point == null) {
             return;
         }
 
@@ -80,16 +96,16 @@ class OrbitViewer extends Viewer {
             return;
         }
 
-        if (this.oldX === 0 && this.oldY === 0 && this.oldZ === 0) {
-            this.oldX = this.app.mouse.cartesianX;
-            this.oldY = this.app.mouse.cartesianY;
-            this.oldZ = this.app.mouse.cartesianZ;
+        if (this._oldX === 0 && this._oldY === 0 && this._oldZ === 0) {
+            this._oldX = point.x;
+            this._oldY = point.y;
+            this._oldZ = point.z;
             return;
         }
 
         // 计算相机转过的弧度
-        var vec3_old = new THREE.Vector3(this.oldX, this.oldY, this.oldZ);
-        var vec3_new = new THREE.Vector3(this.app.mouse.cartesianX, this.app.mouse.cartesianY, this.app.mouse.cartesianZ);
+        var vec3_old = new THREE.Vector3(this._oldX, this._oldY, this._oldZ);
+        var vec3_new = new THREE.Vector3(point.x, point.y, point.z);
 
         var axis = new THREE.Vector3().crossVectors(vec3_new, vec3_old);
         axis.normalize();
@@ -105,9 +121,9 @@ class OrbitViewer extends Viewer {
         this._mouseX = event.offsetX;
         this._mouseY = event.offsetY;
 
-        this.oldX = this.app.mouse.cartesianX;
-        this.oldY = this.app.mouse.cartesianY;
-        this.oldZ = this.app.mouse.cartesianZ;
+        this._oldX = point.x;
+        this._oldY = point.y;
+        this._oldZ = point.z;
 
         this.app.call('viewChange', this);
     }
@@ -120,9 +136,9 @@ class OrbitViewer extends Viewer {
         this._mouseDown = false;
         this._mouseX = 0;
         this._mouseY = 0;
-        this.oldX = 0;
-        this.oldY = 0;
-        this.oldZ = 0;
+        this._oldX = 0;
+        this._oldY = 0;
+        this._oldZ = 0;
     }
 
     /**
